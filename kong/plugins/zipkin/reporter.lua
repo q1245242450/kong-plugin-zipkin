@@ -41,16 +41,22 @@ function zipkin_reporter_methods:report(span)
 
 	local localEndpoint do
 		local serviceName = zipkin_tags["peer.service"]
-		if serviceName then
-			zipkin_tags["peer.service"] = nil
-			localEndpoint = {
-				serviceName = serviceName;
-				-- TODO: ip/port from ngx.var.server_name/ngx.var.server_port?
-			}
-		else
-			-- needs to be null; not the empty object
-			localEndpoint = cjson.null
-		end
+        if serviceName then
+            zipkin_tags["peer.service"] = nil
+            localEndpoint = {
+                serviceName = serviceName;
+                -- TODO: ip/port from ngx.var.server_name/ngx.var.server_port?
+            }
+        else if component then
+            zipkin_tags["peer.service"] = nil
+            localEndpoint = {
+                serviceName = "api-gateway";
+            }
+        else
+            -- needs to be null; not the empty object
+            localEndpoint = cjson.null
+        end
+        end
 	end
 
 	local remoteEndpoint do
